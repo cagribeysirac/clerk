@@ -1,21 +1,36 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-json
       - id: check-toml
       - id: check-yaml
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: detect-private-key
 
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v19.1.7
     hooks:
-      - id: isort
-        args: ["--profile", "black"]
-
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
+      - id: clang-format
+        args:
+          [
+            "--style={BasedOnStyle: Google, BreakBeforeBraces: Attach, IndentWidth: 4, ColumnLimit: 100, AccessModifierOffset: -3, AllowShortFunctionsOnASingleLine: Empty, SortIncludes: true}",
+            -i,
+          ]
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
     hooks:
-      - id: black
-        args: ["--line-length", "120"]
+      - id: clang-tidy
+        name: clang-tidy
+        language: system
+        entry: clang-tidy
+        args: ["-p=build"] # compilation database's directory
+      - id: cppcheck
+        name: cppcheck
+        language: system
+        entry: cppcheck
