@@ -4,6 +4,21 @@
 
 Clerk connects to MQTT and allows you to subscribe to topics and receive messages. It also inserts the messages into a Postgres/TimescaleDB database.
 
+## Dependencies
+
+- CMake
+- C++17
+- g++
+- Boost (system, uuid)
+- Paho MQTT C
+- Paho MQTT C++
+
+### Install dependencies
+
+```bash
+$ sudo apt-get install cmake g++ libboost-all-dev libpaho-mqtt-dev libpaho-mqttpp-dev
+```
+
 ## Build
 
 ### Build Configuration
