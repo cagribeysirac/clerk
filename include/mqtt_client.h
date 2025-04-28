@@ -25,6 +25,7 @@ class MqttClient : public mqtt::callback {
         async_client = new mqtt::async_client(BROKER_ADDRESS, CLIENT_ID);
         async_client->set_callback(*this);
         conn_opts = mqtt::connect_options_builder().clean_session().finalize();
+        conn_opts.set_keep_alive_interval(60);
     }
 
     void connect() {
@@ -45,6 +46,7 @@ class MqttClient : public mqtt::callback {
 
     void subscribe(const std::string& topic, int qos = 0) {
         try {
+            std::cout << "Subscribing to topic: " << topic << std::endl;
             async_client->subscribe(topic, qos)->wait();
         } catch (const mqtt::exception& exc) {
             std::cerr << "Error: " << exc.what() << std::endl;
@@ -89,6 +91,18 @@ class MqttClient : public mqtt::callback {
         // Called when the message is delivered successfully
         // This function is not be called while QOS is 0
         std::cout << "Message delivered successfully" << std::endl;
+    }
+
+    void loop() {
+        try {
+            while (true) {
+                // Keep the client alive and process incoming messages
+                async_client->start_consuming();
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error in loop: " << e.what() << std::endl;
+        }
     }
 };
 
