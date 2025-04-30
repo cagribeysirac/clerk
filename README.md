@@ -16,7 +16,7 @@ Clerk connects to MQTT and allows you to subscribe to topics and receive message
 ### Install dependencies
 
 ```bash
-$ sudo apt-get install cmake g++ libboost-all-dev libpaho-mqtt-dev libpaho-mqttpp-dev
+$ sudo apt-get install cmake g++ libboost-all-dev libpaho-mqtt-dev libpaho-mqttpp-dev libpqxx-dev
 ```
 
 ## Build

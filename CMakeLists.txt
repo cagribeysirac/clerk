@@ -56,9 +56,14 @@ find_library(PAHO_MQTT_CPP NAMES libpaho-mqttpp3.so paho-mqttpp3
     REQUIRED
 )
 
-# Link Boost library to the executable
+# Find PostgreSQL C++ package
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PQXX REQUIRED libpqxx)
+
+# Link packages and libraries to the executable
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::boost
     ${PAHO_MQTT_CPP}
     ${PAHO_MQTT_C}
+    ${PQXX_LIBRARIES}
 )
