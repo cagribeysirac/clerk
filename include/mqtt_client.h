@@ -6,9 +6,9 @@
 #include <chrono>
 #include <csignal>
 #include <iostream>
-#include <pqxx/pqxx>
 #include <string>
 
+#include "db_conn.h"
 #include "mqtt/client.h"
 
 class MqttClient : public mqtt::callback {
@@ -21,32 +21,25 @@ class MqttClient : public mqtt::callback {
     const std::string BROKER_ADDRESS;
     const std::string CLIENT_ID;
 
-    pqxx::connection* db_connection;  // Database connection object
+    Database db;  // Use the Database class from db_conn.h
 
     volatile sig_atomic_t* stop_flag_;  // Pointer to stop flag
 
  public:
     MqttClient(const std::string& broker_address, const std::string& client_id,
-               const std::string& db_conn_str, volatile sig_atomic_t* stop_flag)
-        : BROKER_ADDRESS(broker_address), CLIENT_ID(client_id), stop_flag_(stop_flag) {
+               const db::db_connection_params& db_conn_info, volatile sig_atomic_t* stop_flag)
+        : BROKER_ADDRESS(broker_address),
+          CLIENT_ID(client_id),
+          db(db_conn_info),
+          stop_flag_(stop_flag) {
         // Initialize the MQTT client
         async_client = new mqtt::async_client(BROKER_ADDRESS, CLIENT_ID);
         async_client->set_callback(*this);
         conn_opts = mqtt::connect_options_builder().clean_session().finalize();
         conn_opts.set_keep_alive_interval(60);
 
-        // Connect to database
-        try {
-            db_connection = new pqxx::connection(db_conn_str);
-            if (db_connection->is_open()) {
-                std::cout << "Connected to database successfully: " << db_connection->dbname()
-                          << std::endl;
-            } else {
-                std::cerr << "Failed to connect to database" << std::endl;
-            }
-        } catch (const std::exception& e) {
-            std::cerr << "Database connection error: " << e.what() << std::endl;
-        }
+        // Connect to the database
+        db.connect();
     }
 
     ~MqttClient() {
@@ -63,12 +56,8 @@ class MqttClient : public mqtt::callback {
             delete async_client;
         }
 
-        // Clean up the database connection
-        if (db_connection) {
-            std::cout << "Closing database connection..." << std::endl;
-            db_connection->close();
-            delete db_connection;
-        }
+        // Disconnect from the database
+        db.disconnect();
     }
 
     // Connect to the MQTT broker

@@ -2,25 +2,12 @@
 
 #include <iostream>
 
+#include "db_conn.h"
 #include "mqtt_client.h"
 
 namespace {  // Use anonymous namespace instead of global variables
 std::string MQTT_BROKER_ADDRESS = "mqtt://127.0.0.1:1883";
 std::string MQTT_TOPIC = "local/sim/#";
-struct db_connection_info  // Use struct to hold database connection info
-{
-    std::string dbname = "postgres";
-    std::string user = "postgres";
-    std::string password = "password";
-    std::string hostaddr = "127.0.0.1";
-    std::string port = "5432";
-
-    std::string to_string() const {
-        return "dbname=" + dbname + " user=" + user + " password=" + password +
-               " hostaddr=" + hostaddr + " port=" + port + " target_session_attrs=read-write";
-    };
-};
-
 }  // namespace
 
 // Print help message
@@ -94,7 +81,7 @@ int main(int argc, const char* const argv[]) {
     std::cout << "Hello, I'm Clerk!" << std::endl;
 
     // Initialize Database connection info
-    db_connection_info db_connection_info;
+    db::db_connection_params db_connection_info;
 
     // Parse command line arguments
     auto args = parse_args(argc, argv);
@@ -124,8 +111,7 @@ int main(int argc, const char* const argv[]) {
     std::signal(SIGINT, signal_handler);
 
     // Create and connect the MQTT client
-    MqttClient mqtt_client(MQTT_BROKER_ADDRESS, "clerk", db_connection_info.to_string(),
-                           &stop_signal);
+    MqttClient mqtt_client(MQTT_BROKER_ADDRESS, "clerk", db_connection_info, &stop_signal);
     mqtt_client.connect();
     mqtt_client.subscribe(MQTT_TOPIC);
     mqtt_client.loop();
