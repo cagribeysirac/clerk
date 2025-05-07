@@ -27,7 +27,11 @@ else()
 endif()
 
 # Find all .cpp files in src/ directory
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES
+    "src/*.cpp"
+    "src/db/*.cpp"
+    "src/mqtt/*.cpp"
+)
 
 # Create executable named clerk
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -35,8 +39,12 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 # Add global include directory
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# Add include directory to the project (for header files)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+# Add include directories for header files
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/db
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mqtt
+)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 
 # Enable export of compile commands

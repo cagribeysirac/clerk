@@ -111,7 +111,7 @@ int main(int argc, const char* const argv[]) {
     std::signal(SIGINT, signal_handler);
 
     // Create and connect the MQTT client
-    MqttClient mqtt_client(MQTT_BROKER_ADDRESS, "clerk", db_connection_info, &stop_signal);
+    mqtt::MqttClient mqtt_client(MQTT_BROKER_ADDRESS, "clerk", db_connection_info, &stop_signal);
     mqtt_client.connect();
     mqtt_client.subscribe(MQTT_TOPIC);
     mqtt_client.loop();
