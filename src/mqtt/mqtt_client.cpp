@@ -14,7 +14,13 @@ MqttClient::MqttClient(const std::string& broker_address, const std::string& cli
     conn_opts = mqtt::connect_options_builder().clean_session().finalize();
     conn_opts.set_keep_alive_interval(60);
 
-    db.connect();  // Connect to the database
+    try {
+        db.connect();  // Connect to the database
+    } catch (const std::exception& e) {
+        // Stop the application if database connection fails
+        std::cerr << "Exiting application due to database connection failure." << std::endl;
+        exit(1);
+    }
 }
 
 MqttClient::~MqttClient() {

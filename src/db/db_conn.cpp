@@ -38,9 +38,11 @@ void Database::connect() {
             std::cout << "Connected to database successfully: " << conn->dbname() << std::endl;
         } else {
             std::cerr << "Failed to connect to database" << std::endl;
+            throw std::runtime_error("Failed to connect to database");
         }
     } catch (const std::exception& e) {
         std::cerr << "Database connection error: " << e.what() << std::endl;
+        throw;  // Rethrow the exception to handle it in the caller
     }
 }
 
