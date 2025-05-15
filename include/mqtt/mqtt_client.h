@@ -25,6 +25,8 @@ class MqttClient : public mqtt::callback {
     db::Database db;                    // Database object
     volatile sig_atomic_t* stop_flag_;  // Pointer to stop flag
 
+    std::vector<std::string> errors;
+
  public:
     MqttClient(const std::string& broker_address, const std::string& client_id,
                const db::db_connection_params& db_conn_info, volatile sig_atomic_t* stop_flag);
@@ -42,6 +44,12 @@ class MqttClient : public mqtt::callback {
     void connection_lost(const std::string& cause) override;
     void message_arrived(mqtt::const_message_ptr msg) override;
     void delivery_complete([[maybe_unused]] mqtt::delivery_token_ptr token) override;
+
+    // Error handling methods
+    void add_error(const std::string& error);
+    void clear_errors();
+    void print_errors() const;
+    const std::vector<std::string>& get_errors();
 };
 
 }  // namespace mqtt

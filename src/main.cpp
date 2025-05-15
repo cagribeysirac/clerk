@@ -108,12 +108,23 @@ int main(int argc, const char* const argv[]) {
     if (args.find("dbport") != args.end()) {
         db_connection_info.port = args["dbport"];
     }
+
+    // Set up signal handler
     std::signal(SIGINT, signal_handler);
 
     // Create and connect the MQTT client
     mqtt::MqttClient mqtt_client(MQTT_BROKER_ADDRESS, "clerk", db_connection_info, &stop_signal);
     mqtt_client.connect();
     mqtt_client.subscribe(MQTT_TOPIC);
+
+    // Check for errors
+    if (mqtt_client.get_errors().size() > 0) {
+        mqtt_client.print_errors();
+        return 1;
+    }
+
+    // Start the MQTT client loop
     mqtt_client.loop();
+
     return 0;
 }

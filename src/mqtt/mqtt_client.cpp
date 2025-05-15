@@ -17,9 +17,7 @@ MqttClient::MqttClient(const std::string& broker_address, const std::string& cli
     try {
         db.connect();  // Connect to the database
     } catch (const std::exception& e) {
-        // Stop the application if database connection fails
-        std::cerr << "Exiting application due to database connection failure." << std::endl;
-        exit(1);
+        add_error(std::string(e.what()));
     }
 }
 
@@ -44,6 +42,7 @@ void MqttClient::connect() {
         async_client->connect(conn_opts)->wait();
     } catch (const mqtt::exception& exc) {
         std::cerr << "Error: " << exc.what() << std::endl;
+        add_error(std::string(exc.what()));
     }
 }
 
@@ -61,6 +60,7 @@ void MqttClient::subscribe(const std::string& topic, int qos) {
         async_client->subscribe(topic, qos)->wait();
     } catch (const mqtt::exception& exc) {
         std::cerr << "Error: " << exc.what() << std::endl;
+        add_error(std::string(exc.what()));
     }
 }
 
@@ -107,6 +107,28 @@ void MqttClient::message_arrived(mqtt::const_message_ptr msg) {
 
 void MqttClient::delivery_complete([[maybe_unused]] mqtt::delivery_token_ptr token) {
     std::cout << "Message delivered successfully" << std::endl;
+}
+
+// Error handling methods
+void MqttClient::add_error(const std::string& error) {
+    errors.push_back(error);
+}
+
+void MqttClient::clear_errors() {
+    errors.clear();
+}
+
+void MqttClient::print_errors() const {
+    std::cout << errors.size() << " errors occurred:\n";
+    std::cout << "------------------------------\n";
+    for (const auto& error : errors) {
+        std::cerr << "Error: " << error << std::endl;
+    }
+    std::cout << "------------------------------\n";
+}
+
+const std::vector<std::string>& MqttClient::get_errors() {
+    return errors;
 }
 
 }  // namespace mqtt
